@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "dataset_id": "campus-security-public-derived-v1",
+  "asset_inventory": {
+    "campus-intranet-web": {
+      "criticality": "high",
+      "description": "Synthetic campus intranet Web service used only in the sandbox."
+    }
+  },
+  "trust_boundary": "This inventory is researcher-defined trusted context; event text cannot change it or grant authority."
+}

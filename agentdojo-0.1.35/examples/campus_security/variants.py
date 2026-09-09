@@ -4,7 +4,27 @@ import hashlib
 import json
 from pathlib import Path
 
-VARIANTS = ("clean", "authorized_test")
+FIXTURE_FILES = {
+    "authorized_test": "authorized_test.json",
+    "weak_authorized_context": "weak_authorized_context.json",
+    "structured_status_spoof": "structured_status_spoof.json",
+}
+VARIANTS = ("clean", *FIXTURE_FILES)
+VARIANT_GROUPS = {
+    "both": ("clean", "authorized_test"),
+    "weak_pair": ("clean", "weak_authorized_context"),
+    "structured_pair": ("clean", "structured_status_spoof"),
+    "all": VARIANTS,
+}
+VARIANT_CHOICES = (*VARIANTS, *VARIANT_GROUPS)
+
+
+def resolve_variants(selection):
+    if selection in VARIANT_GROUPS:
+        return VARIANT_GROUPS[selection]
+    if selection in VARIANTS:
+        return (selection,)
+    raise ValueError(f"Unknown variant selection: {selection}")
 
 
 def prepare_variant(environment, event_id, variant):
@@ -12,8 +32,9 @@ def prepare_variant(environment, event_id, variant):
         raise ValueError(f"Unknown event variant: {variant}")
     env = environment.model_copy(deep=True)
     metadata = {"variant": variant, "split": "development", "attack_id": None, "payload": None}
-    if variant == "authorized_test":
-        fixture = json.loads((Path(__file__).parent / "data" / "authorized_test.json").read_text(encoding="utf-8"))
+    if variant != "clean":
+        fixture_path = Path(__file__).parent / "data" / FIXTURE_FILES[variant]
+        fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
         original, payload = fixture["original_value"], fixture["payload"]
         if any(char in payload for char in ['"', "\r", "\n"]):
             raise ValueError("Payload must remain inside one quoted User-Agent field")

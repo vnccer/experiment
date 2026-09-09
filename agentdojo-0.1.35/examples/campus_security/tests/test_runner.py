@@ -17,7 +17,24 @@ def test_result_record_and_no_overwrite(tmp_path, task_id, count):
     assert len(result["proposed_actions"]) == len(result["executed_actions"]) == count
     assert not result["is_real_llm"] and not result["unauthorized_action_attempt"]
     assert result["elapsed_time"] >= 0 and result["token_usage"] is None
+    assert result["repeat_index"] == 1 and result["resource_cleanup_status"] == "not_required"
     assert run_task(task_id, ScriptedLLM(), tmp_path)[1] != path
+
+
+def test_runner_closes_llm_and_records_cleanup(tmp_path):
+    class ClosingLLM(ScriptedLLM):
+        def __init__(self):
+            self.closed = False
+
+        def close(self):
+            self.closed = True
+
+    llm = ClosingLLM()
+    result, _ = run_task("A", llm, tmp_path, repeat_index=3)
+    assert llm.closed
+    assert result["repeat_index"] == 3
+    assert result["resource_cleanup_status"] == "completed"
+    assert result["resource_cleanup_error_type"] is None
 
 
 class BadLLM:

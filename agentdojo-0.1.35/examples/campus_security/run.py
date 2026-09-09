@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from .pipeline import IterationLimitError, ScriptedLLM, build_pipeline
 from .runtime import CampusRuntime
 from .tasks import EVENT_ID, SOURCE_IP, task_suite
-from .variants import VARIANTS, assess_injection, prepare_variant
+from .variants import VARIANT_CHOICES, assess_injection, prepare_variant, resolve_variants
 
 
 def json_default(value):
@@ -24,7 +24,16 @@ def json_default(value):
     raise TypeError(f"Unsupported record type: {type(value).__name__}")
 
 
-def run_task(task_id, llm, output_dir, backend="scripted", model_name="scripted-demo", max_iters=8, variant="clean"):
+def run_task(
+    task_id,
+    llm,
+    output_dir,
+    backend="scripted",
+    model_name="scripted-demo",
+    max_iters=8,
+    variant="clean",
+    repeat_index=1,
+):
     task = task_suite.get_user_task_by_id({"A": "user_task_0", "B": "user_task_1"}[task_id])
     env = task_suite.load_and_inject_default_environment({})
     env, attack_metadata = prepare_variant(env, EVENT_ID, variant)
@@ -34,6 +43,8 @@ def run_task(task_id, llm, output_dir, backend="scripted", model_name="scripted-
     success = False
     status = "completed"
     error_type = None
+    cleanup_status = "not_required"
+    cleanup_error_type = None
     try:
         success, _ = task_suite.run_task_with_pipeline(
             pipeline, task, None, {}, runtime_class=CampusRuntime, environment=env
@@ -47,7 +58,15 @@ def run_task(task_id, llm, output_dir, backend="scripted", model_name="scripted-
     except Exception as exc:
         # Never persist exception text: SDK errors can contain credentials or request data.
         status, error_type = "error", type(exc).__name__
-    elapsed = perf_counter() - start
+    finally:
+        elapsed = perf_counter() - start
+        close = getattr(llm, "close", None)
+        if callable(close):
+            try:
+                close()
+                cleanup_status = "completed"
+            except Exception as exc:
+                cleanup_status, cleanup_error_type = "error", type(exc).__name__
     state = env.sandbox
     report = state.reports.get(EVENT_ID)
     proposals = []
@@ -73,6 +92,7 @@ def run_task(task_id, llm, output_dir, backend="scripted", model_name="scripted-
         "agentdojo_task_id": task.ID,
         "event_id": EVENT_ID,
         "variant": variant,
+        "repeat_index": repeat_index,
         "attack_metadata": attack_metadata,
         **assess_injection(attack_metadata, tracked.messages, report, status),
         "response_omission": (SOURCE_IP not in state.blocked_ips) if task_id == "B" and status == "completed" else None,
@@ -82,6 +102,8 @@ def run_task(task_id, llm, output_dir, backend="scripted", model_name="scripted-
         "started_at": started_at,
         "run_status": status,
         "error_type": error_type,
+        "resource_cleanup_status": cleanup_status,
+        "resource_cleanup_error_type": cleanup_error_type,
         "final_verdict": report.verdict if report else None,
         "verdict_source": "accepted_submit_report",
         "final_text": final_text,
@@ -107,7 +129,7 @@ def run_task(task_id, llm, output_dir, backend="scripted", model_name="scripted-
     }
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    filename = f"{backend}-task-{task_id}-{variant}-{uuid4().hex}.json"
+    filename = f"{backend}-task-{task_id}-{variant}-repeat-{repeat_index}-{uuid4().hex}.json"
     path = output_dir / filename
     serialized = json.dumps(result, ensure_ascii=False, indent=2, default=json_default)
     path.write_text(serialized, encoding="utf-8")
@@ -122,12 +144,12 @@ def make_llm(backend, model):
     if backend == "anthropic":
         if not os.getenv("ANTHROPIC_AUTH_TOKEN"):
             raise ValueError("Configure ANTHROPIC_AUTH_TOKEN locally before running; do not paste it into chat.")
-        from anthropic import Anthropic
+        from anthropic import AsyncAnthropic
 
-        from agentdojo.agent_pipeline.llms.anthropic_llm import AnthropicLLM
+        from .anthropic_lifecycle import StableLoopAnthropicLLM
 
-        client = Anthropic(api_key=None, auth_token=os.environ["ANTHROPIC_AUTH_TOKEN"], timeout=60, max_retries=0)
-        return AnthropicLLM(client, model, max_tokens=1024)
+        client = AsyncAnthropic(api_key=None, auth_token=os.environ["ANTHROPIC_AUTH_TOKEN"], timeout=60, max_retries=0)
+        return StableLoopAnthropicLLM(client, model, max_tokens=1024)
     if not os.getenv("OPENAI_API_KEY"):
         raise ValueError("Configure OPENAI_API_KEY locally before running; do not paste it into chat.")
     from openai import OpenAI
@@ -142,17 +164,18 @@ def main():
     parser.add_argument("--backend", choices=("scripted", "anthropic", "openai"), default="scripted")
     parser.add_argument("--model", help="Actual provider model identifier; no AgentDojo enum alias required.")
     parser.add_argument("--task", choices=("A", "B", "both"), default="both")
-    parser.add_argument(
-        "--variant", choices=(*VARIANTS, "both"), default="clean", help="Fixed development event variant."
-    )
+    parser.add_argument("--variant", choices=VARIANT_CHOICES, default="clean", help="Fixed development event variant.")
     parser.add_argument("--output-dir", type=Path, default=Path("runs/campus_security"))
     parser.add_argument("--max-iters", type=int, default=8, help="Maximum execution batches after first LLM response.")
+    parser.add_argument("--repeats", type=int, default=1, help="Independent episodes to run for each task/variant.")
     parser.add_argument(
         "--env-file", type=Path, help="Explicit local dotenv file; existing environment takes precedence."
     )
     args = parser.parse_args()
     if args.max_iters < 1:
         parser.error("--max-iters must be positive")
+    if args.repeats < 1:
+        parser.error("--repeats must be positive")
     if args.env_file:
         if not args.env_file.is_file():
             parser.error("--env-file does not exist")
@@ -160,23 +183,34 @@ def main():
 
         load_dotenv(args.env_file, override=False)
     tasks = ("A", "B") if args.task == "both" else (args.task,)
-    variants = VARIANTS if args.variant == "both" else (args.variant,)
+    variants = resolve_variants(args.variant)
     all_success = True
     for task_id in tasks:
         for variant in variants:
-            try:
-                llm = make_llm(args.backend, args.model)
-            except ValueError as exc:
-                parser.error(str(exc))
-            result, path = run_task(
-                task_id, llm, args.output_dir, args.backend, args.model or "scripted-demo", args.max_iters, variant
-            )
-            all_success = all_success and result["task_success"]
-            print(
-                f"Task {task_id} variant={variant}: status={result['run_status']} success={result['task_success']} "
-                f"real_llm={result['is_real_llm']} calls={result['tool_call_count']} "
-                f"exposed={result['control_text_exposed']} attack_success={result['attack_success']} result={path}"
-            )
+            for repeat_index in range(1, args.repeats + 1):
+                try:
+                    llm = make_llm(args.backend, args.model)
+                except ValueError as exc:
+                    parser.error(str(exc))
+                result, path = run_task(
+                    task_id,
+                    llm,
+                    args.output_dir,
+                    args.backend,
+                    args.model or "scripted-demo",
+                    args.max_iters,
+                    variant,
+                    repeat_index,
+                )
+                all_success = all_success and result["task_success"]
+                all_success = all_success and result["resource_cleanup_status"] != "error"
+                print(
+                    f"Task {task_id} variant={variant} repeat={repeat_index}: status={result['run_status']} "
+                    f"success={result['task_success']} cleanup={result['resource_cleanup_status']} "
+                    f"real_llm={result['is_real_llm']} calls={result['tool_call_count']} "
+                    f"exposed={result['control_text_exposed']} attack_success={result['attack_success']} "
+                    f"result={path}"
+                )
     return 0 if all_success else 1
 
 
