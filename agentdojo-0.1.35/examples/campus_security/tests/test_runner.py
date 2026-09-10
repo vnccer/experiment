@@ -5,7 +5,7 @@ import pytest
 from agentdojo.functions_runtime import FunctionCall
 from agentdojo.types import ChatAssistantMessage
 from examples.campus_security.pipeline import ScriptedLLM
-from examples.campus_security.run import make_llm, run_task
+from examples.campus_security.run import load_explicit_env_file, make_llm, run_task
 
 
 @pytest.mark.parametrize("task_id,count", [("A", 2), ("B", 3)])
@@ -81,6 +81,36 @@ def test_missing_credentials_is_explicit(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
     with pytest.raises(ValueError, match="ANTHROPIC_AUTH_TOKEN"):
         make_llm("anthropic", "example-model")
+
+
+def test_explicit_env_file_overrides_process_anthropic_config(tmp_path, monkeypatch):
+    env_path = tmp_path / ".env"
+    env_path.write_text(
+        "ANTHROPIC_AUTH_TOKEN=file-token\nANTHROPIC_BASE_URL=https://file.example/anthropic\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("ANTHROPIC_AUTH_TOKEN", "process-token")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "process-api-key")
+    monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://process.example/anthropic")
+
+    llm = make_llm("anthropic", "example-model", load_explicit_env_file(env_path))
+    try:
+        assert llm.client.auth_token == "file-token"
+        assert llm.client.api_key == ""
+        assert str(llm.client.base_url) == "https://file.example/anthropic/"
+        assert llm.provider_configuration == {
+            "credential_source": "explicit_env_file",
+            "base_url": "https://file.example/anthropic",
+            "environment_credential_conflict_ignored": True,
+        }
+    finally:
+        llm.close()
+
+
+def test_explicit_env_file_never_falls_back_to_process_token(monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_AUTH_TOKEN", "process-token")
+    with pytest.raises(ValueError, match="ANTHROPIC_AUTH_TOKEN"):
+        make_llm("anthropic", "example-model", {})
 
 
 def test_none_content_at_limit_does_not_restart_suite(tmp_path):

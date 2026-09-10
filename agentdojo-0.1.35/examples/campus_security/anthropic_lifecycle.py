@@ -47,6 +47,12 @@ class StableLoopAnthropicLLM(AnthropicLLM):
                 thinking_budget_tokens=self.thinking_budget_tokens,
             )
         )
+        response_id = getattr(completion, "id", None)
+        response_model = getattr(completion, "model", None)
+        if response_id is not None:
+            extra_args.setdefault("provider_response_ids", []).append(str(response_id))
+        if response_model is not None:
+            extra_args.setdefault("provider_response_models", []).append(str(response_model))
         output = _anthropic_to_assistant_message(completion)
         if output["tool_calls"] is not None:
             output["tool_calls"] = [

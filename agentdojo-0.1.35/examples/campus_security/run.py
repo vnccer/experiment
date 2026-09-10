@@ -24,6 +24,19 @@ def json_default(value):
     raise TypeError(f"Unsupported record type: {type(value).__name__}")
 
 
+def load_explicit_env_file(path):
+    """Read an explicitly selected dotenv file without mutating process environment."""
+    from dotenv import dotenv_values
+
+    return {key: value for key, value in dotenv_values(path).items() if value is not None}
+
+
+def provider_value(name, explicit_env):
+    """Use only the explicit dotenv mapping when one was requested."""
+    value = explicit_env.get(name) if explicit_env is not None else os.getenv(name)
+    return value or None
+
+
 def run_task(
     task_id,
     llm,
@@ -98,6 +111,9 @@ def run_task(
         "response_omission": (SOURCE_IP not in state.blocked_ips) if task_id == "B" and status == "completed" else None,
         "backend": backend,
         "model": model_name,
+        "provider_configuration": getattr(llm, "provider_configuration", None),
+        "provider_response_ids": tracked.extra_args.get("provider_response_ids", []),
+        "provider_response_models": tracked.extra_args.get("provider_response_models", []),
         "is_real_llm": backend != "scripted",
         "started_at": started_at,
         "run_status": status,
@@ -136,27 +152,54 @@ def run_task(
     return json.loads(serialized), path
 
 
-def make_llm(backend, model):
+def make_llm(backend, model, explicit_env=None):
     if backend == "scripted":
         return ScriptedLLM()
     if not model:
         raise ValueError("A real backend requires --model with the provider's model identifier.")
     if backend == "anthropic":
-        if not os.getenv("ANTHROPIC_AUTH_TOKEN"):
+        auth_token = provider_value("ANTHROPIC_AUTH_TOKEN", explicit_env)
+        if not auth_token:
             raise ValueError("Configure ANTHROPIC_AUTH_TOKEN locally before running; do not paste it into chat.")
-        from anthropic import AsyncAnthropic
+        base_url = provider_value("ANTHROPIC_BASE_URL", explicit_env) or "https://api.anthropic.com"
+        process_token = os.getenv("ANTHROPIC_AUTH_TOKEN")
+        credential_conflict_ignored = bool(explicit_env is not None and process_token and process_token != auth_token)
+        from anthropic import AsyncAnthropic, Omit
 
         from .anthropic_lifecycle import StableLoopAnthropicLLM
 
-        client = AsyncAnthropic(api_key=None, auth_token=os.environ["ANTHROPIC_AUTH_TOKEN"], timeout=60, max_retries=0)
-        return StableLoopAnthropicLLM(client, model, max_tokens=1024)
-    if not os.getenv("OPENAI_API_KEY"):
+        client = AsyncAnthropic(
+            api_key="",
+            auth_token=auth_token,
+            base_url=base_url,
+            default_headers={"X-Api-Key": Omit()},
+            timeout=60,
+            max_retries=0,
+        )
+        llm = StableLoopAnthropicLLM(client, model, max_tokens=1024)
+        llm.provider_configuration = {
+            "credential_source": "explicit_env_file" if explicit_env is not None else "process_environment",
+            "base_url": base_url,
+            "environment_credential_conflict_ignored": credential_conflict_ignored,
+        }
+        return llm
+    api_key = provider_value("OPENAI_API_KEY", explicit_env)
+    if not api_key:
         raise ValueError("Configure OPENAI_API_KEY locally before running; do not paste it into chat.")
+    base_url = provider_value("OPENAI_BASE_URL", explicit_env) or "https://api.openai.com/v1"
+    process_key = os.getenv("OPENAI_API_KEY")
+    credential_conflict_ignored = bool(explicit_env is not None and process_key and process_key != api_key)
     from openai import OpenAI
 
     from agentdojo.agent_pipeline.llms.openai_llm import OpenAILLM
 
-    return OpenAILLM(OpenAI(timeout=60, max_retries=0), model)
+    llm = OpenAILLM(OpenAI(api_key=api_key, base_url=base_url, timeout=60, max_retries=0), model)
+    llm.provider_configuration = {
+        "credential_source": "explicit_env_file" if explicit_env is not None else "process_environment",
+        "base_url": base_url,
+        "environment_credential_conflict_ignored": credential_conflict_ignored,
+    }
+    return llm
 
 
 def main():
@@ -169,19 +212,20 @@ def main():
     parser.add_argument("--max-iters", type=int, default=8, help="Maximum execution batches after first LLM response.")
     parser.add_argument("--repeats", type=int, default=1, help="Independent episodes to run for each task/variant.")
     parser.add_argument(
-        "--env-file", type=Path, help="Explicit local dotenv file; existing environment takes precedence."
+        "--env-file",
+        type=Path,
+        help="Authoritative local dotenv file; its provider credentials and base URL ignore same-named process variables.",
     )
     args = parser.parse_args()
     if args.max_iters < 1:
         parser.error("--max-iters must be positive")
     if args.repeats < 1:
         parser.error("--repeats must be positive")
+    explicit_env = None
     if args.env_file:
         if not args.env_file.is_file():
             parser.error("--env-file does not exist")
-        from dotenv import load_dotenv
-
-        load_dotenv(args.env_file, override=False)
+        explicit_env = load_explicit_env_file(args.env_file)
     tasks = ("A", "B") if args.task == "both" else (args.task,)
     variants = resolve_variants(args.variant)
     all_success = True
@@ -189,7 +233,7 @@ def main():
         for variant in variants:
             for repeat_index in range(1, args.repeats + 1):
                 try:
-                    llm = make_llm(args.backend, args.model)
+                    llm = make_llm(args.backend, args.model, explicit_env)
                 except ValueError as exc:
                     parser.error(str(exc))
                 result, path = run_task(

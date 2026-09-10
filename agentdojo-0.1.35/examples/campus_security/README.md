@@ -30,7 +30,7 @@ uv pip install --python .venv/Scripts/python.exe pytest==8.3.5 ruff==0.11.8
 
 已提供 Anthropic 和 OpenAI 适配器入口。DeepSeek的Anthropic兼容接口已验证，模型ID为 `deepseek-chat`，结果见下方第一阶段记录；OpenAI入口尚未做真实调用验证。
 
-Anthropic兼容服务：在本机配置 `ANTHROPIC_AUTH_TOKEN`，第三方服务另配置 `ANTHROPIC_BASE_URL`，并把 `CAMPUS_MODEL` 设置为该服务实际接受的模型标识。不要在聊天或命令输出中展示令牌。
+Anthropic兼容服务：在本机配置 `ANTHROPIC_AUTH_TOKEN`，第三方服务另配置 `ANTHROPIC_BASE_URL`，并把 `CAMPUS_MODEL` 设置为该服务实际接受的模型标识。不要在聊天或命令输出中展示令牌。若传入 `--env-file`，该文件是权威配置源：程序直接读取其中的凭据和地址，不读取或覆盖进程环境，也不会回退到系统中的同名变量；结果的 `provider_configuration` 只记录来源、地址及是否忽略了冲突，不保存密钥。
 
 ```powershell
 .venv/Scripts/python.exe -m examples.campus_security.run --backend anthropic --model "$env:CAMPUS_MODEL" --task both
@@ -38,7 +38,7 @@ Anthropic兼容服务：在本机配置 `ANTHROPIC_AUTH_TOKEN`，第三方服务
 
 这里直接构造 `AnthropicLLM`，`--model` 使用服务端模型ID，不经过原CLI的 `ModelsEnum` 查找。使用兼容接口不代表底层是原生Claude。程序会把模型标识和SDK版本写入结果。
 
-OpenAI兼容服务使用 `--backend openai`，本机配置 `OPENAI_API_KEY`、必要时配置 `OPENAI_BASE_URL`，同样显式传 `--model`。默认不搜索dotenv文件；可通过 `--env-file` 指定本地文件，已有环境变量优先。SDK适配器自身可能重试请求。
+OpenAI兼容服务使用 `--backend openai`，本机配置 `OPENAI_API_KEY`、必要时配置 `OPENAI_BASE_URL`，同样显式传 `--model`。默认不搜索dotenv文件；通过 `--env-file` 指定本地文件后，该文件优先且不会回退到已有环境变量。SDK适配器自身可能重试请求。
 
 ## 场景和可信边界
 
@@ -74,6 +74,8 @@ Task B 的“已提交攻击报告并引用证据”是工作流前置条件，*
 | 字段 | 定义 |
 | --- | --- |
 | `task_id` / `event_id` | A或B / web-001，另存原生任务ID |
+| `provider_configuration` | 非敏感调用来源审计：凭据来源、目标地址、是否忽略冲突的系统凭据；不含密钥 |
+| `provider_response_ids` / `provider_response_models` | 服务端每次LLM响应的ID与实际模型标识，用于核对控制台记录和模型别名映射 |
 | `final_verdict` / `evidence_ids` | 最后一次被接受的 `submit_report`；未提交则为null/空列表 |
 | `final_text` | 模型末条assistant消息的文本，独立保留，不用关键词猜测研判标签 |
 | `proposed_actions` | assistant提出的全部四类工具调用，含ID、原始参数、顺序；也包含上限处尚未执行的调用 |

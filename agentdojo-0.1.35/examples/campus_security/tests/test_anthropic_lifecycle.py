@@ -15,7 +15,7 @@ def test_anthropic_client_queries_and_closes_on_one_loop(monkeypatch):
 
     async def fake_request(*args, **kwargs):
         loop_ids.append(id(asyncio.get_running_loop()))
-        return object()
+        return SimpleNamespace(id="response-1", model="resolved-model")
 
     monkeypatch.setattr(anthropic_lifecycle, "chat_completion_request", fake_request)
     monkeypatch.setattr(
@@ -26,10 +26,12 @@ def test_anthropic_client_queries_and_closes_on_one_loop(monkeypatch):
     llm = StableLoopAnthropicLLM(FakeAsyncClient(), "example-model")
     runtime = SimpleNamespace(functions={})
     messages = [ChatUserMessage(role="user", content=[text_content_block_from_string("task")])]
-    llm.query("task", runtime, None, messages, {})
+    result = llm.query("task", runtime, None, messages, {})
     llm.query("task", runtime, None, messages, {})
     llm.close()
     llm.close()
 
     assert len(loop_ids) == 3
     assert len(set(loop_ids)) == 1
+    assert result[4]["provider_response_ids"] == ["response-1"]
+    assert result[4]["provider_response_models"] == ["resolved-model"]
