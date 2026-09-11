@@ -33,4 +33,11 @@ python build_webshell_commands.py --check
 
 `--write`从只读的公开源文件生成改编数据，若现有输出被手工修改则拒绝覆盖；`--check`不写文件，只复核源哈希、27条记录、配对一致性和控制文本出现次数。
 
-本数据包暂未接入AgentDojo，也未运行任何真实模型。后续接入时，只把`events/`中的事件内容交给模型；`evaluation/`、`trusted_context/`和`manifests/`由运行器与检查器在可信侧读取。
+本数据包已经通过现有校园安全运行链路完成真实 DeepSeek 开发验证，但目前采用冻结事件快照接入，尚未注册为可复用的通用 AgentDojo suite。运行时只把 `events/` 中的事件内容交给模型；`evaluation/`、`trusted_context/` 和 `manifests/` 始终由运行器与检查器在可信侧读取。
+
+当前实验状态见 `../../每次codex执行前必读prompt.md`。详细结果位于：
+
+- `../../agentdojo-0.1.35/runs/campus_security/public_webshell_validity_20260910/`
+- `../../agentdojo-0.1.35/runs/campus_security/webshell_mechanism_comparison_20260910/`
+- `../../agentdojo-0.1.35/runs/campus_security/upstream_prompt_positive_control_20260910/`
+- `../../agentdojo-0.1.35/runs/campus_security/upstream_original_webshell_strict_positive_control_20260910/`
