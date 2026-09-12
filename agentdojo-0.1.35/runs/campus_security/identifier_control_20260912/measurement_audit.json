@@ -1,0 +1,267 @@
+{
+  "actual_messages_match_frozen_condition": true,
+  "one_fresh_system_and_user_message_per_episode": true,
+  "read_event_responses_match_frozen_previews": true,
+  "raw_provider_metadata_is_cumulative": true,
+  "explanation": "Default extra_args in the existing AgentPipeline accumulated provider IDs/models only; actual conversations and sandbox state were fresh. Per-episode metadata below is the verified prefix difference; raw files are unchanged.",
+  "per_episode_metadata": [
+    {
+      "slot": 1,
+      "provider_response_ids": [
+        "1d3c33c7-7545-4fa0-9525-895fde3bce07",
+        "6df3187f-64ac-43a6-b3e2-803b482da37c"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 2,
+      "provider_response_ids": [
+        "97a6e7a4-d097-40fa-946c-a8cd10c9edc0",
+        "25728552-ee44-4b2b-b9e7-534ba014de9b",
+        "11b63f2e-4407-476d-94ff-63bbc725f99d"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 3,
+      "provider_response_ids": [
+        "9564a823-6753-413b-be79-f41a67505bec",
+        "5077da21-7fa6-4ab8-9536-f9890a6360a3",
+        "ff8ec5e2-5cf9-4990-b9f5-e32d76295837"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 4,
+      "provider_response_ids": [
+        "30c31472-7c76-4b9b-87c0-02fe8554cfa6",
+        "a2986537-8025-4912-8804-90401d4c29ff",
+        "9cf9b851-8eb5-49c7-b5f3-9171033b0c72"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 5,
+      "provider_response_ids": [
+        "4fcb8751-3df7-423a-9d9c-ecb155f2a6e4",
+        "44419250-bc4e-4a14-8f47-5eed76e1a8da",
+        "6839b80b-18c1-4ec8-a18b-6d8c5442bf1c"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 6,
+      "provider_response_ids": [
+        "f9dcf30f-a6a9-46c5-b2c3-830e99271eca",
+        "a1a2ef53-5511-4b7f-80f4-34354fa4902b",
+        "ee78768e-d7fc-4a29-b692-609576c9cdc5"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 7,
+      "provider_response_ids": [
+        "de1ffa03-eccf-490d-ae46-314919b1599f",
+        "fa9ec7d7-5ebf-4ed5-a2ab-f93284e395af",
+        "b674991e-07ff-4d57-8cdf-36adf607c093"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 8,
+      "provider_response_ids": [
+        "38519e5e-6a2d-4f85-9115-f6a79e7d279b",
+        "2cdd2106-d94d-407f-918c-46c2616b6314",
+        "49dda839-0786-4ce3-b6f5-31bb9d319f62"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 9,
+      "provider_response_ids": [
+        "357cd118-3312-425d-b1d3-f51c3d386bf8",
+        "ab01d657-87d6-482b-915f-0cde8a0f4f5d",
+        "bd27f173-8cdb-4a49-9ccb-625af37133fa"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 10,
+      "provider_response_ids": [
+        "a0c532a8-56ca-4d29-91e9-bda3cb0b1889",
+        "2bb8532b-b376-403c-9fef-36c39f64e80d",
+        "b674b830-95dc-4cee-a66d-3410a7855d84"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 11,
+      "provider_response_ids": [
+        "91dc952e-7f3b-4ab4-980c-7c84ff9630f8",
+        "084d837a-afd5-4dbb-91df-d0a80db11fc4",
+        "628f8309-5283-4b48-8b28-32c08ab11b02"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 12,
+      "provider_response_ids": [
+        "7be6338e-b06d-43c8-9115-4102e7830968",
+        "e324f78e-1fae-4923-a25d-3cf167bed83d",
+        "1439587e-b25c-4bcc-a2d3-6f32e8a24beb"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 13,
+      "provider_response_ids": [
+        "51e79f00-f71f-4dc0-b4f1-4487e8e4a36b",
+        "b01c1833-4b57-4598-b7fd-57a451bfe8c7",
+        "4c3cfe8c-71a8-48af-86ed-63fa1117fc5e"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 14,
+      "provider_response_ids": [
+        "33343fe5-ba31-4e7a-bb3f-3b984f1cbbd2",
+        "42ef758c-8bb9-4924-96a7-04b423aa614b",
+        "71f846d1-d9d5-478c-8154-e7e040bd2e59"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 15,
+      "provider_response_ids": [
+        "1fd7871d-c3ef-44a7-a800-f64703e5ac25",
+        "918cec4e-f1b6-4db7-b151-f9992e2ac8ab",
+        "b879a6d0-0def-4333-8d09-4aefb39861a1"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 16,
+      "provider_response_ids": [
+        "2f9982dc-653e-468c-9c1f-ec479086ab3c",
+        "5094ba51-8509-4a41-ab7b-b5dcb2deed93",
+        "637272b2-802b-48af-9f91-e1309163f9cf"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 17,
+      "provider_response_ids": [
+        "a26c1618-822b-4774-b21c-09dc37300b34",
+        "47eb1650-fab0-46a9-a933-ff3dc8c54978",
+        "f7f994ce-ffba-43d6-9314-7350462a29ec"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 18,
+      "provider_response_ids": [
+        "25125f23-280e-4a20-88ec-443ad0de9c49",
+        "bd9276e5-f311-4de8-99fb-a47878120a07",
+        "2db91c70-8bb4-4b95-8e54-fd7fbdc0d8f6"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 19,
+      "provider_response_ids": [
+        "867c6b9a-575a-45d9-b0ca-15dd77553cfd",
+        "a59085ce-7fda-4303-aecb-aacca23119cf",
+        "4dc7b41c-5b45-41ab-8f92-7d0641b1fb21"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    {
+      "slot": 20,
+      "provider_response_ids": [
+        "742c6eee-d25c-4fe9-88f0-391d8fb7862a",
+        "63d67286-8b9d-473b-9e0b-6d2c1210b884",
+        "4bcc4f2c-64c3-42a4-bce8-1e293e9fedbd"
+      ],
+      "provider_response_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash",
+        "deepseek-v4-flash"
+      ]
+    }
+  ]
+}

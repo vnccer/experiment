@@ -388,4 +388,8 @@ examples/runs
 notebooks/plots/
 
 runs/
+# Keep campus experiment evidence trackable; ignore other run directories.
+!/runs/
+/runs/*
+!/runs/campus_security/
 .claude
