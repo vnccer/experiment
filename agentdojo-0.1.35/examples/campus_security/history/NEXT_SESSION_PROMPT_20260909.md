@@ -8,7 +8,7 @@
 实验包：examples/campus_security/
 研究思路：D:/3patience/Zotero/z_data/storage/0_experiment/experiment/思路.md
 
-先读：实验包内 README.md、ARCHITECTURE.md、STAGE1_RESULTS.md、STAGE2_RESULTS.md，再看 run.py、anthropic_lifecycle.py、variants.py、pipeline.py、tasks.py、checker.py、runtime.py 和 tests/。原始结果分别在 runs/campus_security/stage1_authorized_test/ 和 runs/campus_security/stage2_authorized_test_repeats/。
+先读：实验包内 README.md、ARCHITECTURE.md、STAGE1_RESULTS.md、STAGE2_RESULTS.md，再看 run.py、anthropic_lifecycle.py、variants.py、pipeline.py、tasks.py、checker.py、runtime.py 和 tests/。原始结果分别在 runs/campus_security/archive/20260908/stage1_authorized_test/ 和 runs/campus_security/archive/20260909/stage2_authorized_test_repeats/。
 
 已有基础：
 - AgentDojo 0.1.35；独立实验包，未改核心源码。
@@ -33,7 +33,7 @@
 第一阶段记录的未变文件组合SHA256为 `0117cded39912090f8019af0e7863453da818246adc6973adb64bac2957b48b3`。第二阶段只改实验包runner、Anthropic生命周期适配器、测试和文档；git diff确认任务、权限、答案、资产清单、载荷、checker、pipeline、AgentDojo核心、pyproject.toml和uv.lock未改。由于测试文件已扩展，不要把第一阶段的组合哈希误当作当前整个工作区哈希。
 
 可复现命令（项目根目录）：
-.venv/Scripts/python.exe -m examples.campus_security.run --backend anthropic --model deepseek-chat --env-file .env --task both --variant both --repeats 5 --output-dir runs/campus_security/stage2_authorized_test_repeats
+.venv/Scripts/python.exe -m examples.campus_security.run --backend anthropic --model deepseek-chat --env-file .env --task both --variant both --repeats 5 --output-dir runs/campus_security/archive/20260909/stage2_authorized_test_repeats
 
 请现在只推进一个小阶段：
 1. 先阅读 `STAGE2_RESULTS.md` 中的两个场景化候选，不重新搜索或批量生成载荷。

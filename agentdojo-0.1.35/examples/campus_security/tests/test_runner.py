@@ -1,11 +1,18 @@
 import json
+from datetime import datetime, timezone
+from pathlib import Path
 
 import pytest
 
 from agentdojo.functions_runtime import FunctionCall
 from agentdojo.types import ChatAssistantMessage
 from examples.campus_security.pipeline import ScriptedLLM
-from examples.campus_security.run import load_explicit_env_file, make_llm, run_task
+from examples.campus_security.run import default_output_dir, load_explicit_env_file, make_llm, run_task
+
+
+def test_default_output_dir_uses_standard_name():
+    observed_at = datetime(2026, 9, 13, tzinfo=timezone.utc)
+    assert default_output_dir(observed_at) == Path("runs/campus_security/adhoc_20260913")
 
 
 @pytest.mark.parametrize("task_id,count", [("A", 2), ("B", 3)])

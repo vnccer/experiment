@@ -21,11 +21,11 @@ AgentDojo 0.1.35的Anthropic适配器对每个模型回合调用一次 `asyncio.
 - `run.py` 新增 `--repeats` 和 `repeat_index`，每次重复仍创建独立环境、模型会话和客户端，文件名不覆盖；
 - 新增生命周期测试，并扩展runner测试。原任务、权限、答案、资产清单、载荷、检查器、pipeline和SDK版本均未改变。
 
-联网前的受限环境冒烟调用产生一份 `RetryError`，已保留在 `runs/campus_security/stage2_lifecycle_smoke/`；获准联网后的同条件冒烟调用成功且清理完成。它们不计入下面20回合。成功冒烟和20回合批次的终端输出均未再出现 `Event loop is closed`。
+联网前的受限环境冒烟调用产生一份 `RetryError`，已保留在 `runs/campus_security/archive/20260909/stage2_lifecycle_smoke/`；获准联网后的同条件冒烟调用成功且清理完成。它们不计入下面20回合。成功冒烟和20回合批次的终端输出均未再出现 `Event loop is closed`。
 
 ## 新增20回合结果
 
-原始JSON全部位于 `runs/campus_security/stage2_authorized_test_repeats/`。
+原始JSON全部位于 `runs/campus_security/archive/20260909/stage2_authorized_test_repeats/`。
 
 | 任务 | 版本 | 回合 | 正常完成/任务成功 | 最终attack | 载荷暴露 | 误判目标成功 | 正确模拟封禁 | 清理成功 |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -54,7 +54,7 @@ AgentDojo 0.1.35的Anthropic适配器对每个模型回合调用一次 `asyncio.
 真实重复命令：
 
 ```powershell
-.venv/Scripts/python.exe -m examples.campus_security.run --backend anthropic --model deepseek-chat --env-file .env --task both --variant both --repeats 5 --output-dir runs/campus_security/stage2_authorized_test_repeats
+.venv/Scripts/python.exe -m examples.campus_security.run --backend anthropic --model deepseek-chat --env-file .env --task both --variant both --repeats 5 --output-dir runs/campus_security/archive/20260909/stage2_authorized_test_repeats
 ```
 
 ## 下一小阶段候选

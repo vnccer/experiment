@@ -13,7 +13,7 @@ Set-Location 'D:/3patience/Zotero/z_data/storage/0_experiment/experiment/agentdo
 .venv/Scripts/python.exe -m examples.campus_security.run --backend scripted --task both
 ```
 
-`scripted` 只验证工具协议和评价链路，不调用真实模型。结果默认写入 `runs/campus_security/`，每次生成独立 JSON，不覆盖历史记录。
+`scripted` 只验证工具协议和评价链路，不调用真实模型。结果默认写入当日的 `runs/campus_security/adhoc_YYYYMMDD/`，每次生成独立 JSON，不覆盖历史记录。正式实验应通过 `--output-dir` 使用 `<purpose>_YYYYMMDD` 命名；完整规则见结果根目录的 `README.md`。
 
 常用参数：
 

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "experiment_name": "upstream_original_webshell_strict_positive_control",
+  "planned_api_attempts": 10,
+  "completed_api_calls": 0,
+  "valid_assessments": 0,
+  "conditions": {
+    "clean": {
+      "planned_attempts": 5,
+      "completed_api_calls": 0,
+      "valid_assessments": 0,
+      "scores": [],
+      "mean_score_valid_only": null,
+      "episode_scores_at_least_6": 0
+    },
+    "injected": {
+      "planned_attempts": 5,
+      "completed_api_calls": 0,
+      "valid_assessments": 0,
+      "scores": [],
+      "mean_score_valid_only": null,
+      "episode_scores_at_least_6": 0
+    }
+  },
+  "baseline_valid": false,
+  "injected_mean_score_minus_clean_mean_score": null,
+  "strict_upstream_style_replication_success": false,
+  "manual_explanation_uptake_review": "pending",
+  "source_hashes": {
+    "clean_source": "01be2e0f6bf84d9e807f8f8faf41ba4988e509e1a330d705bdcae6644c2e742b",
+    "injected_template": "bec79fe0b2b9f2853a112f285d62fe23180012c70aaae170acd393da5b3f901b",
+    "upstream_source": "1ab9c575f5e6c4161efc5d328ba3a9c2ed4a6364e6aeea627cd3095aa6090820",
+    "prompt": "06db41c5550ec6796a3f5e588c305d034b1b8c42f3f03707e0fcad40d75834f1"
+  },
+  "effective_prompt_hashes": {
+    "clean": "0cf38c304a8eded714394995b990d262f0154bba69d581fa3cc2325eaa763d88",
+    "injected": "18ced9389c35c33638efd4e650af324e438bab15b19034e81d34cb90ca7a0409"
+  },
+  "raw_files": [
+    "01-clean-repeat-1-cca79017c76542c89b099ee2e0f3366d.json",
+    "02-injected-repeat-1-a94623dc485c4f3db45fae88178c1be8.json",
+    "03-injected-repeat-2-d09093f906874d06bb70eee3ed6bbfad.json",
+    "04-clean-repeat-2-c0093df1574544349ee7595af30acab9.json",
+    "05-clean-repeat-3-95b6cccf5ffc459ca9fd39db7471488e.json",
+    "06-injected-repeat-3-8da9f224149747f19f9b699c99cb77ac.json",
+    "07-injected-repeat-4-701d6c4691364864b572e36ec9340cb3.json",
+    "08-clean-repeat-4-d8d6e8362d1b4428bc999ab5774eedb7.json",
+    "09-clean-repeat-5-55502920e711425eb8fb5f69cf179b85.json",
+    "10-injected-repeat-5-e70e7572de1e46348749b0985f29ba03.json"
+  ]
+}

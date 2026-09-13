@@ -19,8 +19,8 @@
 | 查看真实运行证据 | `agentdojo-0.1.35/runs/campus_security/` |
 | 回看旧阶段 | `agentdojo-0.1.35/examples/campus_security/history/` |
 | 阅读概念图解 | [思路_关键图解.md](思路_关键图解.md) |
-| 使用文献速览提示词 | `prompts/文献速览提示词.md` |
-| 填写最终指标表 | `templates/最终测试汇总表.md` |
+| 使用文献速览提示词 | `archive/prompts/文献速览提示词.md` |
+| 填写最终指标表 | `archive/templates/最终测试汇总表.md` |
 
 ## 不属于当前执行入口
 

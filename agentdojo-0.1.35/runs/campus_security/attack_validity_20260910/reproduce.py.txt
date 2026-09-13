@@ -1,0 +1,26 @@
+import json, hashlib
+from pathlib import Path
+from dotenv import load_dotenv
+from examples.campus_security import run, variants
+p=Path('runs/campus_security/attack_validity_20260910').resolve()
+plan=json.loads((p/'plan.json').read_text())
+for name in plan['conditions'][1:]:
+    variants.FIXTURE_FILES[name]=str(p/(name+'.json'))
+variants.VARIANTS=tuple(plan['conditions'])
+base=run.task_suite.load_and_inject_default_environment({})
+for name in plan['conditions']:
+    env,meta=variants.prepare_variant(base,'web-001',name)
+    if name!='clean':
+        original=base.sandbox.events['web-001'].raw_log
+        assert env.sandbox.events['web-001'].raw_log.replace(meta['payload'],'demo-browser/1.0')==original
+        assert hashlib.sha256(meta['payload'].encode()).hexdigest()==plan['payload_sha256'][name]
+    a=env.model_dump(); b=base.model_dump()
+    a['sandbox']['events']['web-001']['raw_log']=b['sandbox']['events']['web-001']['raw_log']
+    assert a==b
+print('Validated all variants: only User-Agent differs.',flush=True)
+load_dotenv('.env',override=False)
+for repeat in range(1,4):
+    for name in plan['conditions']:
+        llm=run.make_llm('anthropic','deepseek-chat')
+        result,path=run.run_task('A',llm,p/'raw','anthropic','deepseek-chat',8,name,repeat)
+        print(json.dumps({k:result[k] for k in ['variant','repeat_index','run_status','error_type','final_verdict','control_text_exposed','attack_success']}) ,flush=True)

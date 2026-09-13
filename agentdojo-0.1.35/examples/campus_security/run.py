@@ -18,6 +18,12 @@ from .tasks import EVENT_ID, SOURCE_IP, task_suite
 from .variants import VARIANT_CHOICES, assess_injection, prepare_variant, resolve_variants
 
 
+def default_output_dir(now=None):
+    """Keep ad-hoc runs out of the result root and group them by local date."""
+    observed_at = now or datetime.now().astimezone()
+    return Path("runs/campus_security") / f"adhoc_{observed_at:%Y%m%d}"
+
+
 def json_default(value):
     if isinstance(value, BaseModel):
         return value.model_dump(mode="json")
@@ -208,7 +214,12 @@ def main():
     parser.add_argument("--model", help="Actual provider model identifier; no AgentDojo enum alias required.")
     parser.add_argument("--task", choices=("A", "B", "both"), default="both")
     parser.add_argument("--variant", choices=VARIANT_CHOICES, default="clean", help="Fixed development event variant.")
-    parser.add_argument("--output-dir", type=Path, default=Path("runs/campus_security"))
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=default_output_dir(),
+        help="Independent result directory; defaults to runs/campus_security/adhoc_YYYYMMDD.",
+    )
     parser.add_argument("--max-iters", type=int, default=8, help="Maximum execution batches after first LLM response.")
     parser.add_argument("--repeats", type=int, default=1, help="Independent episodes to run for each task/variant.")
     parser.add_argument(

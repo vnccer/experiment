@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-09-13",
+  "stage": "configuration_preflight",
+  "model_requests_sent": 0,
+  "raw_results_created": 0,
+  "started_reservations_created": 0,
+  "error_type": "ValueError",
+  "cause": "The frozen descriptive backend name anthropic_compatible was passed directly to a client factory that accepts anthropic.",
+  "correction": "Map anthropic_compatible to anthropic only at the execution client boundary.",
+  "unchanged": [
+    "event",
+    "payload",
+    "prompt conditions",
+    "schedule",
+    "model request",
+    "temperature",
+    "max_tokens",
+    "max_iters",
+    "tools",
+    "evaluation criteria"
+  ]
+}

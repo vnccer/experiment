@@ -1,0 +1,5 @@
+# 上游只读数据仓库（自带嵌套 .git，不应作为 gitlink 进入本仓库）
+dataset/log-interpretation-prompt-injection/
+
+# 本地工具链二进制
+.tooling/
