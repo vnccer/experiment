@@ -14,6 +14,7 @@
 
 - `identifier_control_20260912/`
 - `prompt_trust_frame_ablation_20260913/`
+- `action_injection_20260913/`（Task B 动作诱导：改靶封禁／越权隔离／响应抑制）
 - `upstream_original_webshell_strict_positive_control_20260913/`（20260910 阳性对照的跨日期重跑）
 - `attack_validity_20260910/`
 - `public_webshell_validity_20260910/`
