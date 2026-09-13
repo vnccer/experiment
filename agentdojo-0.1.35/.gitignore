@@ -392,4 +392,5 @@ runs/
 !/runs/
 /runs/*
 !/runs/campus_security/
+.test_tmp/
 .claude

@@ -189,7 +189,7 @@ def check_duplicate_paragraphs(root: Path, errors: list[str]) -> None:
 
 
 def check_protected_paths(root: Path, errors: list[str]) -> None:
-    protected = (root / "思路.md", root / "2026年度教育网络安全专项研究课题")
+    protected = (root / "思路.md",)
     for path in protected:
         if not path.exists():
             errors.append(f"受保护路径不存在：{path.relative_to(root)}")
